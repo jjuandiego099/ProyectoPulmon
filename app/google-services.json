@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "98938768974",
+    "project_id": "proyectopulmon-b987d",
+    "storage_bucket": "proyectopulmon-b987d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:98938768974:android:80516fa10ecb8d82ecfd1f",
+        "android_client_info": {
+          "package_name": "com.example.proyecto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLVpze4k3v5fDeKcs--7sZdnYO1-Vt9ok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
