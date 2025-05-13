@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                 var currentUser= auth.currentUser
                 var startDestiation = "LoginScreen"
                 if(currentUser !=null){
-                    startDestiation = "IA"
+                    startDestiation = "HomeScreen"
                 }else{
 
                     startDestiation="loginScreen"
@@ -49,9 +49,8 @@ class MainActivity : ComponentActivity() {
                     composable("LoginScreen") { LoginScreen(navController) }
                     composable("RegisterScreen") { RegisterScreen(navController) }
                     composable("HomeScreen") { HomeScreen(navController) }
-
                     composable("RegisterScreen2") { RegisterScreen2(navController) }
-                    composable("IA") { IA(navController) }
+
 
                 }
             }
