@@ -15,6 +15,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.proyecto.ui.theme.ProyectoTheme
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,8 +24,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ProyectoTheme {
+
+                var auth= Firebase.auth
+                var currentUser= auth.currentUser
+                var startDestiation = "LoginScreen"
+                if(currentUser !=null){
+                    startDestiation = "IA"
+                }else{
+
+                    startDestiation="loginScreen"
+                }
                 val navController = rememberNavController()
-                val startDestiation = "IA"
+
+
+
 
 
                 NavHost(
@@ -32,8 +46,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 ) {
 
-                    composable("Login") { LoginScreen(navController) }
-                    composable("Register") { RegisterScreen(navController) }
+                    composable("LoginScreen") { LoginScreen(navController) }
+                    composable("RegisterScreen") { RegisterScreen(navController) }
                     composable("HomeScreen") { HomeScreen(navController) }
 
                     composable("RegisterScreen2") { RegisterScreen2(navController) }

@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -58,7 +57,20 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //Navegation
     implementation(libs.androidx.navigation.compose)
     implementation (libs.androidx.material.icons.extended)
+    //firebase
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.auth)
+    // Para Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+// Para corrutinas
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+
 
 }

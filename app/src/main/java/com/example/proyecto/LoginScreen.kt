@@ -1,6 +1,7 @@
 package com.example.proyecto
 
 
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -30,19 +32,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.proyecto.ui.theme.ProyectoTheme
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.auth
+
 
 
 @Composable
 fun LoginScreen(navcontroller: NavController) {
-    var textoCorreo by remember { mutableStateOf("") }
-    var textoContrasena by remember { mutableStateOf("") }
+    val auth = Firebase.auth
+    var textocorreo by remember { mutableStateOf("") }
+    var textocontra by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf("") }
+    var MessageEmail by remember { mutableStateOf("") }
+    var MessagePassword by remember { mutableStateOf("") }
+    val activity = LocalView.current.context as Activity
     val titulo=Color(0xFF0D293F)
     val secundario=Color(0xFF2E4E69)
 
@@ -79,9 +95,9 @@ fun LoginScreen(navcontroller: NavController) {
             )
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedTextField(
-                value = textoCorreo,
+                value = textocorreo,
                 onValueChange = {
-                    textoCorreo = it
+                    textocorreo = it
                 },
                 label = { Text("Correo Electronico") }, modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
@@ -91,13 +107,25 @@ fun LoginScreen(navcontroller: NavController) {
                         tint = secundario
                     )
                 },
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                supportingText = {
+                    if (MessageEmail.isNotEmpty()) {
+                        Text(
+                            text = MessageEmail,
+                            color = Color.Red
+                        )
+                    }
+                }, keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    autoCorrect = false,
+                    keyboardType = KeyboardType.Email
+                )
             )
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedTextField(
-                value = textoContrasena,
+                value = textocontra,
                 onValueChange = {
-                    textoContrasena = it
+                    textocontra = it
                 },
                 label = { Text("Contraseña") }, modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
@@ -106,12 +134,48 @@ fun LoginScreen(navcontroller: NavController) {
                         contentDescription = "Contraseña",
                         tint = secundario
                     )
-                },
-                shape = RoundedCornerShape(12.dp)
+                },keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    autoCorrect = false,
+                    keyboardType = KeyboardType.Password
+                ),
+                visualTransformation = PasswordVisualTransformation(),
+
+                shape = RoundedCornerShape(12.dp),
+                supportingText = {
+                    if (MessagePassword.isNotEmpty()) {
+                        Text(
+                            text = MessagePassword,
+                            color = Color.Red
+                        )
+                    }
+                }
             )
             Spacer(modifier = Modifier.height(24.dp))
             Button(
-                onClick = {
+                onClick = {var BooleanEmail: Boolean = ValidationEmail(textocorreo).first
+                    MessageEmail = ValidationEmail(textocorreo).second
+                    var BooleanPassword: Boolean = ValidationPassword(textocontra).first
+                    MessagePassword = ValidationPassword(textocontra).second
+
+                    if (BooleanPassword && BooleanEmail) {
+                        auth.signInWithEmailAndPassword(textocorreo, textocontra)
+                            .addOnCompleteListener(activity) { task ->
+                                if (task.isSuccessful) {
+                                    navcontroller.navigate("HomeScreen") {
+                                        popUpTo("LoginScreen") {
+                                            inclusive = true
+                                        }
+                                    }
+                                } else {
+                                    error = when (task.exception) {
+                                        is FirebaseAuthInvalidCredentialsException -> " Correo o Contraseña inconrrecta"
+                                        is FirebaseAuthInvalidUserException -> "No existe una cuenta con este correo"
+                                        else -> "Error al iniciar sesion Intente de Nuevo"
+                                    }
+                                }
+                            }
+                    }
 
                 },
                 colors = ButtonDefaults.buttonColors
@@ -126,8 +190,18 @@ fun LoginScreen(navcontroller: NavController) {
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
+            if (error.isNotEmpty()) {
+                Text(
+                    error,
+                    color = Color.Red,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                )
+            }
             TextButton(onClick = {
-                navcontroller.navigate("Register")
+                navcontroller.navigate("RegisterScreen")
+
             }) {
                 Text(
                     text = "¿No tienes una cuenta? Registrate",

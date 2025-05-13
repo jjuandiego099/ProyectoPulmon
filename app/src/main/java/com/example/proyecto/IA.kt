@@ -2,7 +2,6 @@ package com.example.proyecto
 
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -31,18 +29,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun IA(navController: NavController) {
     val primaryColor = Color(0xFF0D293F)
     val secondaryColor = Color(0xFF2E4E69)
 
-    // Lista de campos con respuestas Sí/No
     val yesNoFields = listOf(
         "Inmunodeficiencia", "Problema de respiración", "Consumo de alcohol",
         "Dolor de garganta", "Opresión en el pecho", "Historial familiar",
@@ -51,14 +51,16 @@ fun IA(navController: NavController) {
         "Estrés mental", "Exposición a la contaminación", "Enfermedad a largo plazo"
     )
 
-    // Inicialización de los estados con valores por defecto
     val toggleStates = remember {
-        yesNoFields.associateWith { mutableStateOf(false) }.toMutableMap()
+        yesNoFields.associateWith { mutableStateOf(0) }.toMutableMap()
     }
 
-    var age by remember { mutableStateOf(30f) }
+    var age by remember { mutableStateOf(50f) }
+    var textoresultado by remember { mutableStateOf(false) }
     var energy by remember { mutableStateOf(50f) }
     var oxygen by remember { mutableStateOf(95f) }
+
+    var resultadoPrediccion by remember { mutableStateOf("") }
 
     LazyColumn(
         modifier = Modifier
@@ -72,25 +74,24 @@ fun IA(navController: NavController) {
                     text = "Predicción",
                     fontSize = 26.sp,
                     color = primaryColor,
-                    fontWeight = FontWeight.Bold, // Negrita
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .padding(top = 16.dp, bottom = 16.dp) // Padding top y bottom
-                        .align(Alignment.Center) // Centrado horizontal con Box
+                        .padding(top = 16.dp, bottom = 16.dp)
+                        .align(Alignment.Center)
                 )
             }
         }
 
         item {
-            SliderWithLabel("Edad", age, 0f, 100f, primaryColor) { age = it }
+            SliderWithLabel("Edad", age, 30f, 84f, primaryColor) { age = it }
         }
         item {
-            SliderWithLabel("Nivel de Energia", energy, 0f, 100f, primaryColor) { energy = it }
+            SliderWithLabel("Nivel de Energia", energy, 24f, 83f, primaryColor) { energy = it }
         }
         item {
-            SliderWithLabel("Saturacion de Oxigeno", oxygen, 80f, 100f, primaryColor) { oxygen = it }
+            SliderWithLabel("Saturacion de Oxigeno", oxygen, 89f, 99f, primaryColor) { oxygen = it }
         }
 
-        // Usando itemsIndexed
         itemsIndexed(yesNoFields) { index, field ->
             val state = toggleStates[field]!!
             YesNoField(
@@ -98,18 +99,52 @@ fun IA(navController: NavController) {
                 state = state,
                 primaryColor = primaryColor,
                 secondaryColor = secondaryColor,
-                yesText = if (field == "Gender") "Masculino" else "Sí",
-                noText = if (field == "Gender") "Femenino" else "No"
+                yesText = if (field == "Género") "Masculino" else "Sí",
+                noText = if (field == "Género") "Femenino" else "No"
             )
         }
+        item {
+            if (resultadoPrediccion.isNotEmpty()){
+                Text(
+                    text = "Resultado: $resultadoPrediccion",
+                    fontSize = 18.sp,
+                    color = if (resultadoPrediccion == "No tiene cáncer de pulmón") Color(0xFF4CAF50) else Color.Red,
+                    fontWeight = FontWeight.Bold,)
+            }
+
+        }
+
         item {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
+                    textoresultado = true
+                    val patientData = PatientData(
+                        Age = age.toInt(),
+                        Energy_Level = energy,
+                        Oxygen_Saturation = oxygen,
+                        Gender = toggleStates["Género"]?.value ?: 0,
+                        Smoking = toggleStates["Tabaquismo"]?.value ?: 0,
+                        Finger_Discoloration = toggleStates["Descoloración de los dedos"]?.value ?: 0,
+                        Mental_Stress = toggleStates["Estrés mental"]?.value ?: 0,
+                        Exposure_To_Pollution = toggleStates["Exposición a la contaminación"]?.value ?: 0,
+                        Long_Term_Illness = toggleStates["Enfermedad a largo plazo"]?.value ?: 0,
+                        Immune_Weakness = toggleStates["Inmunodeficiencia"]?.value ?: 0,
+                        Breathing_Issue = toggleStates["Problema de respiración"]?.value ?: 0,
+                        Alcohol_Consumption = toggleStates["Consumo de alcohol"]?.value ?: 0,
+                        Throat_Discomfort = toggleStates["Dolor de garganta"]?.value ?: 0,
+                        Chest_Tightness = toggleStates["Opresión en el pecho"]?.value ?: 0,
+                        Family_History = toggleStates["Historial familiar"]?.value ?: 0,
+                        Smoking_Family_History = toggleStates["Historial familiar de tabaquismo"]?.value ?: 0,
+                        Stress_Immune = toggleStates["Estrés inmunológico"]?.value ?: 0
+                    )
+                    CoroutineScope(Dispatchers.IO).launch {
+                         resultadoPrediccion = ConsumirApi(patientData)
 
+
+                    }
                 },
-                colors = ButtonDefaults.buttonColors
-                    (containerColor = secondaryColor),
+                colors = ButtonDefaults.buttonColors(containerColor = secondaryColor),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
@@ -117,18 +152,21 @@ fun IA(navController: NavController) {
                 Text(
                     text = "Predecir",
                     fontSize = 16.sp
-
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
         }
+
+
+
+
     }
 }
 
 @Composable
 fun YesNoField(
     label: String,
-    state: MutableState<Boolean>,
+    state: MutableState<Int>,
     primaryColor: Color,
     secondaryColor: Color,
     yesText: String,
@@ -144,10 +182,9 @@ fun YesNoField(
             color = primaryColor
         )
         Row {
-            // RadioButton para Sí
             RadioButton(
-                selected = state.value,
-                onClick = { state.value = true },
+                selected = state.value == 1,
+                onClick = { state.value = 1 },
                 colors = RadioButtonDefaults.colors(
                     selectedColor = primaryColor,
                     unselectedColor = secondaryColor
@@ -155,20 +192,16 @@ fun YesNoField(
             )
             Text(yesText, color = secondaryColor)
             Spacer(modifier = Modifier.width(8.dp))
-
-            // RadioButton para No
             RadioButton(
-                selected = !state.value,
-                onClick = { state.value = false },
+                selected = state.value == 0,
+                onClick = { state.value = 0 },
                 colors = RadioButtonDefaults.colors(
                     selectedColor = primaryColor,
                     unselectedColor = secondaryColor
                 )
             )
             Text(noText, color = secondaryColor)
-
         }
-
     }
 }
 
@@ -194,11 +227,3 @@ fun SliderWithLabel(
         )
     }
 }
-
-
-
-
-
-
-
-

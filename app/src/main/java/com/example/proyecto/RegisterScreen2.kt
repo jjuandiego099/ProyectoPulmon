@@ -198,7 +198,9 @@ fun RegisterScreen2(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
-                    navController.navigate("HomeScreen")
+                    navController.navigate("HomeScreen"){
+                        popUpTo(0){inclusive=true}
+                    }
                 },
                 colors = ButtonDefaults.buttonColors
                     (containerColor = secundario),
