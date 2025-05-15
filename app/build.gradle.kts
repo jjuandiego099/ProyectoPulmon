@@ -76,5 +76,12 @@ dependencies {
     implementation (libs.accompanist.pager)
     implementation (libs.accompanist.pager.indicators)
 
+    //firestore
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
+
+
+
+
 
 }

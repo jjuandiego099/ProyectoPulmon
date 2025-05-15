@@ -38,7 +38,7 @@ fun Calendario() {
         Text(
             text = "DÍAS LIBRES DE HUMO",
             color = titulo,
-            fontSize = 20.sp,
+            fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 16.dp)
         )
@@ -74,7 +74,7 @@ fun Calendario() {
 
                 // Números de tiempo con formato uniforme
                 Row(verticalAlignment = Alignment.Bottom) {
-                    TiempoTexto("2", "AÑOS", titulo, secundario)
+                    TiempoTexto("2", " AÑOS", titulo, secundario)
                     TiempoTexto("4", "MESES", titulo, secundario)
                     TiempoTexto("26", "DÍAS", titulo, secundario)
                     TiempoTexto("6", "HORAS", titulo, secundario)

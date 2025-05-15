@@ -15,6 +15,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
 
 @Preview
 @Composable
@@ -22,9 +28,33 @@ fun Perfil(cerrar: () -> Unit = {}) {
 
     val primaryColor = Color(0xFF0D293F) // Azul oscuro
     val secondaryColor = Color(0xFF2E4E69) // Azul claro
+    val auth = Firebase.auth
+    val user = auth.currentUser
+    val db = Firebase.firestore
+    var nombre by remember { mutableStateOf("") }
+    var peso by remember { mutableStateOf(0L) }
+    var cigarrillosPorDia by remember { mutableStateOf(0L) }
+    var fechaNacimiento by remember { mutableStateOf("") }
+    var fechaInicioFumar by remember { mutableStateOf("") }
+    var genero by remember { mutableStateOf("") }
+
+    val correo = user?.email ?: "No existe usuario"
+
+    db.collection("usuarios").document(user!!.uid).get().addOnSuccessListener {
+        nombre = it.getString("nombre").toString()
+        fechaNacimiento = it.getString("fechaNacimiento").toString()
+        fechaInicioFumar = it.getString("fechaInicioFumar").toString()
+        peso = it.getLong("peso")?: 0L
+        genero = it.getString("genero").toString()
+        cigarrillosPorDia = it.getLong("cigarrillosPorDia")?: 0L
+    }
+
 
     val titulo = "Perfil de Usuario"
     val infoLabel = "Información Personal"
+    val edad = calcularEdad(fechaNacimiento)
+//    val libreHumo = calcularEdad(fechaNacimiento)
+
 
     LazyColumn(
         modifier = Modifier
@@ -61,15 +91,15 @@ fun Perfil(cerrar: () -> Unit = {}) {
             )
         }
         item {
-            Campo("Correo", "andres@example.com")
+            Campo("Correo", correo)
             Spacer(modifier = Modifier.height(20.dp))
-            Campo("Nombre", "Efrain")
+            Campo("Nombre", nombre)
             Spacer(modifier = Modifier.height(20.dp))
-            Campo("Edad", "28 años")
+            Campo("Edad", edad.toString())
             Spacer(modifier = Modifier.height(20.dp))
-            Campo("Peso", "70 kg")
+            Campo("Peso", peso.toString())
             Spacer(modifier = Modifier.height(20.dp))
-            Campo("Cigarrillos promedio diarios", "5")
+            Campo("Cigarrillos promedio diarios", cigarrillosPorDia.toString())
             Spacer(modifier = Modifier.height(20.dp))
             Campo("Días libre de humo", "12")
         }
@@ -109,5 +139,17 @@ fun Campo(label: String, valor: String) {
             color = primaryColor
         )
         Text(valor, fontSize = 20.sp, color = secondaryColor)
+    }
+}
+
+fun calcularEdad(fechaNacimiento: String?): Int? {
+    if (fechaNacimiento.isNullOrEmpty()) return null
+    return try {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val fechaNacimientoDate = LocalDate.parse(fechaNacimiento, formatter)
+        val hoy = LocalDate.now()
+        Period.between(fechaNacimientoDate, hoy).years
+    } catch (e: Exception) {
+        null
     }
 }

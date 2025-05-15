@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     startDestiation = "HomeScreen"
                 }else{
 
-                    startDestiation="loginScreen"
+                    startDestiation="LoginScreen"
                 }
                 val navController = rememberNavController()
 

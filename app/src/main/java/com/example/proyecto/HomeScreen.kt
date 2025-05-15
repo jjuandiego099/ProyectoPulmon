@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import com.google.accompanist.pager.*
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
 
 
@@ -26,7 +28,12 @@ import kotlinx.coroutines.launch
 fun HomeScreen(navController: NavController) {
     val auth = FirebaseAuth.getInstance()
     val user = auth.currentUser
-    val correo = user?.email ?: "No existe usuario"
+    val db = Firebase.firestore
+    var nombre by remember { mutableStateOf("") }
+    db.collection("usuarios").document(user!!.uid).get().addOnSuccessListener {
+        nombre = it.getString("nombre").toString()}
+
+
 
     val seleccion = Color(0xFFB0CFEA)
     val borde = Color(0xFF2E4E69)
@@ -49,14 +56,15 @@ fun HomeScreen(navController: NavController) {
 
     Scaffold(
         topBar = {
-            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-            MediumTopAppBar(
+            val scrollBehavior =
+                TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+            TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text(correo, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(nombre, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -76,7 +84,10 @@ fun HomeScreen(navController: NavController) {
                             popUpTo(0) { inclusive = true }
                         }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar sesión")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = "Cerrar sesión"
+                        )
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -119,7 +130,8 @@ fun HomeScreen(navController: NavController) {
                     0 -> Estadisticas()
                     1 -> Calendario()
                     2 -> IA()
-                    3 -> Perfil(cerrar = {navController.navigate("LoginScreen"){popUpTo(0)}})
+                    3 -> Perfil(cerrar = { auth.signOut()
+                    navController.navigate("LoginScreen") {popUpTo(0) { inclusive = true }}})
                 }
             }
         }

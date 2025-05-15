@@ -2,7 +2,10 @@
 accompanistPager = " 0.28.0"
 accompanistPagerIndicators = "0.28.0"
 agp = "8.9.1"
+compose = "1.12.0"
+composeVersion = "1.13.0"
 converterGson = "2.9.0"
+firebaseBom = "33.13.0"
 foundation = "1.8.1"
 kotlin = "2.0.21"
 coreKtx = "1.10.1"
@@ -15,6 +18,7 @@ lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.09.00"
 materialIconsExtended = "<version>"
+mpandroidchart = "v3.1.0"
 navigationCompose = "2.8.9"
 googleGmsGoogleServices = "4.4.2"
 firebaseDatabase = "21.0.0"
@@ -28,7 +32,13 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "compose" }
+compose-m3 = { module = "com.patrykandpatrick.vico:compose-m3", version.ref = "composeVersion" }
+compose-v1130 = { module = "com.patrykandpatrick.vico:compose", version.ref = "composeVersion" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+core = { module = "com.patrykandpatrick.vico:core", version.ref = "composeVersion" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -46,6 +56,7 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database",
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 
 [plugins]

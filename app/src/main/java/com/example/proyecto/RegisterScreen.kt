@@ -111,27 +111,6 @@ fun RegisterScreen(navcontroller: NavController) {
             )
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedTextField(
-                value = textonombre,
-                onValueChange = {
-                    textonombre = it
-                },
-                label = { Text("Nombre Completo") }, modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.AccountBox,
-                        contentDescription = "Nombre Completo",
-                        tint = titulo
-                    )
-                }, supportingText = {
-                    if (MessageName.isNotEmpty()) {
-                        Text(MessageName, color = Color.Red)
-                    }
-                },
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-            OutlinedTextField(
                 value = textocorreo,
                 onValueChange = {
                     textocorreo=it
@@ -222,13 +201,12 @@ fun RegisterScreen(navcontroller: NavController) {
                     MessageEmail = ValidationEmail(textocorreo).second
                     var BooleanPassword: Boolean = ValidationPassword(textocontra).first
                     MessagePassword = ValidationPassword(textocontra).second
-                    var BooleanName: Boolean = ValidationName(textonombre).first
-                    MessageName = ValidationName(textonombre).second
+
                     var BooleanPassword2: Boolean =
                         ValidationConfirmation(textocontra, textocontra2).first
                     MessagePassword2 = ValidationConfirmation(textocontra, textocontra2).second
 
-                    if (BooleanEmail && BooleanPassword2 && BooleanPassword && BooleanName) {
+                    if (BooleanEmail && BooleanPassword2 && BooleanPassword ) {
                         auth.createUserWithEmailAndPassword(textocorreo, textocontra)
                             .addOnCompleteListener(activity) { task ->
                                 if (task.isSuccessful) {
