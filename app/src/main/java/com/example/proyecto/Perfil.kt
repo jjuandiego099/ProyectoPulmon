@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.AccountCircle
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
@@ -35,7 +37,16 @@ fun Perfil(cerrar: () -> Unit = {}) {
     var peso by remember { mutableStateOf(0L) }
     var cigarrillosPorDia by remember { mutableStateOf(0L) }
     var fechaNacimiento by remember { mutableStateOf("") }
-    var fechaInicioFumar by remember { mutableStateOf("") }
+    var tiempoCigarrillos by remember { mutableStateOf(emptyMap<String, Long>()) }
+
+    LaunchedEffect(Unit) {
+        obtenerTiempoDesdeUltimoCigarrillo(
+            onResultado = { tiempoCigarrillos = it },
+            onError = {  }
+        )
+    }
+
+
     var genero by remember { mutableStateOf("") }
 
     val correo = user?.email ?: "No existe usuario"
@@ -43,10 +54,10 @@ fun Perfil(cerrar: () -> Unit = {}) {
     db.collection("usuarios").document(user!!.uid).get().addOnSuccessListener {
         nombre = it.getString("nombre").toString()
         fechaNacimiento = it.getString("fechaNacimiento").toString()
-        fechaInicioFumar = it.getString("fechaInicioFumar").toString()
+
         peso = it.getLong("peso")?: 0L
         genero = it.getString("genero").toString()
-        cigarrillosPorDia = it.getLong("cigarrillosPorDia")?: 0L
+
     }
 
 
@@ -91,6 +102,8 @@ fun Perfil(cerrar: () -> Unit = {}) {
             )
         }
         item {
+            calcularCigarrillosPromedio(onResultado = {cigarrillosPorDia=it.toLong()}, onError = {})
+
             Campo("Correo", correo)
             Spacer(modifier = Modifier.height(20.dp))
             Campo("Nombre", nombre)
@@ -101,7 +114,7 @@ fun Perfil(cerrar: () -> Unit = {}) {
             Spacer(modifier = Modifier.height(20.dp))
             Campo("Cigarrillos promedio diarios", cigarrillosPorDia.toString())
             Spacer(modifier = Modifier.height(20.dp))
-            Campo("Días libre de humo", "12")
+            Campo("Días libre de humo",tiempoCigarrillos["días"].toString() )
         }
         item {
             Button(

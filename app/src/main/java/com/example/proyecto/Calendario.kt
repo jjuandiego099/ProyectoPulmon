@@ -12,6 +12,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,12 +25,39 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
-@Preview
+
 @Composable
 fun Calendario() {
     val titulo = Color(0xFF0D293F)
     val secundario = Color(0xFF2E4E69)
+
+    var tiempoCigarrillos by remember { mutableStateOf(emptyMap<String, Long>()) }
+
+    LaunchedEffect(Unit) {
+        obtenerTiempoDesdeUltimoCigarrillo(
+            onResultado = { tiempoCigarrillos = it },
+            onError = {  }
+        )
+
+        while (isActive) { // Evita bloqueo infinito de la UI
+            delay(1000L)
+
+            tiempoCigarrillos = tiempoCigarrillos.toMutableMap().apply {
+                val segundos = this["segundos"] ?: 0
+                val minutos = this["minutos"] ?: 0
+
+                this["segundos"] = segundos + 1
+
+                if (segundos + 1 >= 60) {
+                    this["minutos"] = minutos + 1
+                    this["segundos"] = 0
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -42,12 +74,13 @@ fun Calendario() {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 16.dp)
         )
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Descripción con texto normal
         Text(
             text = "Dejar de fumar mejora la salud casi de inmediato: en solo 20 minutos baja la presión arterial, en 24 horas se reduce el riesgo de ataque cardíaco, y con el tiempo los pulmones y el sistema inmunológico se fortalecen notablemente.",
             color = secundario,
-            fontSize = 14.sp,
+            fontSize = 20.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(16.dp)
         )
@@ -59,7 +92,7 @@ fun Calendario() {
                 .padding(top = 8.dp)
         ) {
             CircularProgressIndicator(
-                progress = 0.95f,
+                progress = 1f,
                 color = titulo,
                 strokeWidth = 8.dp,
                 modifier = Modifier.fillMaxSize()
@@ -74,21 +107,18 @@ fun Calendario() {
 
                 // Números de tiempo con formato uniforme
                 Row(verticalAlignment = Alignment.Bottom) {
-                    TiempoTexto("2", " AÑOS", titulo, secundario)
-                    TiempoTexto("4", "MESES", titulo, secundario)
-                    TiempoTexto("26", "DÍAS", titulo, secundario)
-                    TiempoTexto("6", "HORAS", titulo, secundario)
-                    TiempoTexto("33", "MINUTOS", titulo, secundario)
+                    TiempoTexto("${tiempoCigarrillos["años"] ?: 0L}", if ((tiempoCigarrillos["años"] ?: 0L) == 1L) " AÑO" else " AÑOS", titulo, secundario)
+                    TiempoTexto("${tiempoCigarrillos["meses"] ?: 0L}", if ((tiempoCigarrillos["meses"] ?: 0L) == 1L) " MES" else " MESES", titulo, secundario)
+                    TiempoTexto("${tiempoCigarrillos["días"] ?: 0L}", if ((tiempoCigarrillos["días"] ?: 0L) == 1L) " DÍA" else " DÍAS", titulo, secundario)
+                    TiempoTexto("${tiempoCigarrillos["horas"] ?: 0L}", if ((tiempoCigarrillos["horas"] ?: 0L) == 1L) " HORA" else " HORAS", titulo, secundario)
+                    TiempoTexto("${tiempoCigarrillos["minutos"] ?: 0L}", if ((tiempoCigarrillos["minutos"] ?: 0L) == 1L) " MINUTO" else " MINUTOS", titulo, secundario)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // "58 segundos" en la parte inferior
-                TiempoTexto("58", "SEGUNDOS", titulo, secundario)
-            }
-        }
-    }
-}
+                TiempoTexto("${tiempoCigarrillos["segundos"] ?: 0L}", if ((tiempoCigarrillos["segundos"] ?: 0L) == 1L) " SEGUNDO" else " SEGUNDOS", titulo, secundario)
+    }}
+}}
 
 @Composable
 fun TiempoTexto(valor: String, etiqueta: String, colorValor: Color, colorEtiqueta: Color) {

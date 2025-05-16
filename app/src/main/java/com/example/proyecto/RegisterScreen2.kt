@@ -1,6 +1,7 @@
 package com.example.proyecto
 
 
+import android.content.ClipData.Item
 import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.Image
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -110,187 +112,213 @@ fun RegisterScreen2(navController: NavController) {
                 }
             })
     }) { innerPading ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(innerPading)
                 .fillMaxSize()
                 .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            item {
+                Image(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Register",
+                    modifier = Modifier.size(150.dp),
+                    colorFilter = ColorFilter.tint(titulo)
+                )
 
-            Image(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Register",
-                modifier = Modifier.size(150.dp),
-                colorFilter = ColorFilter.tint(titulo)
-            )
-            Text(
-                text = "Queremos Conocerte Más",
-                fontSize = 24.sp, fontWeight = FontWeight.Bold,
-                color = titulo
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            OutlinedTextField(
-                value = textoNombre,
-                onValueChange = {
-                    if (it.all { it.isLetter() || it.isWhitespace() }) {
-                        textoNombre = it
-                    }
-                },
-                keyboardOptions = KeyboardOptions.Default, // o KeyboardOptions(keyboardType = KeyboardType.Text)
-                singleLine = true,
-                label = { Text("Nombre Completo") }, modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.AccountBox,
-                        contentDescription = "Nombre Completo",
-                        tint = secundario
-                    )
-                },
-                shape = RoundedCornerShape(12.dp),
-                supportingText = {
-                    if (MessageName.isNotEmpty()) {
-                        Text(MessageName, color = Color.Red)
-                    }
-                }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-
-            OutlinedTextField(
-                value = peso,
-                onValueChange = {
-                    if (it.all { it.isDigit() }) {
-                        peso = it
-                    }
-                },
-                label = { Text("Peso") },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.FitnessCenter,
-                        contentDescription = "Peso",
-                        tint = secundario
-                    )
-                },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                supportingText = {
-                    if (MessagePeso.isNotEmpty()) {
-                        Text(MessagePeso, color = Color.Red)
-                    }
-                }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            CalendarDatePicker(
-                label = "Fecha de nacimiento: $fechan",
-                onDateSelected = { date -> fechan = date })
-            if (MessageNac.isNotEmpty()) {
-                Text(MessageNac, color = Color.Red, fontSize = 11.sp)
-
-            } else {
-                Spacer(modifier = Modifier.height(20.dp))
             }
-            CalendarDatePicker(
-                label = "Fumas desde:  $anosFumando",
-                onDateSelected = { date ->
-                    anosFumando = date
-                }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            OutlinedTextField(
-                value = cigarrillos,
-                onValueChange = {
-                    if (it.all { it.isDigit() }) {
-                        cigarrillos = it
-                    }
-                },
-                label = { Text("Cuantos Cigarrillos fumas diario?") },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.SmokingRooms,
-                        contentDescription = "Peso",
-                        tint = secundario
-                    )
-                },
-                shape = RoundedCornerShape(12.dp),
-                supportingText = {
-                    if (MessageCigarillos.isNotEmpty()) {
-                        Text(MessageCigarillos, color = Color.Red)
-                    }
-                }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            GenderDropdownMenu(
-                options = generos,
-                onOptionSelected = {
-                    genero = it
-                }
-            )
-            if (MessageGenero.isNotEmpty()) {
-                Text("Elija un genero", color = Color.Red, fontSize = 11.sp)
-            }
-            if (error.isNotEmpty()) {
-
+            item {
                 Text(
-                    error,
-                    color = Color.Red,
+                    text = "Queremos Conocerte Más",
+                    fontSize = 24.sp, fontWeight = FontWeight.Bold,
+                    color = titulo
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+
+            }
+            item {
+                OutlinedTextField(
+                    value = textoNombre,
+                    onValueChange = {
+                        if (it.all { it.isLetter() || it.isWhitespace() }) {
+                            textoNombre = it
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions.Default, // o KeyboardOptions(keyboardType = KeyboardType.Text)
+                    singleLine = true,
+                    label = { Text("Nombre Completo") }, modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.AccountBox,
+                            contentDescription = "Nombre Completo",
+                            tint = secundario
+                        )
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    supportingText = {
+                        if (MessageName.isNotEmpty()) {
+                            Text(MessageName, color = Color.Red)
+                        }
+                    }
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+
+            }
+            item {
+                OutlinedTextField(
+                    value = peso,
+                    onValueChange = {
+                        if (it.all { it.isDigit() }) {
+                            peso = it
+                        }
+                    },
+                    label = { Text("Peso") },
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.FitnessCenter,
+                            contentDescription = "Peso",
+                            tint = secundario
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    supportingText = {
+                        if (MessagePeso.isNotEmpty()) {
+                            Text(MessagePeso, color = Color.Red)
+                        }
+                    }
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+
+            }
+            item {
+                CalendarDatePicker(
+                    label = "Fecha de nacimiento: $fechan",
+                    onDateSelected = { date -> fechan = date })
+                if (MessageNac.isNotEmpty()) {
+                    Text(MessageNac, color = Color.Red, fontSize = 11.sp)
+
+                } else {
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+
+            }
+            item {
+                CalendarDatePicker(
+                    label = "Fumas desde:  $anosFumando",
+                    onDateSelected = { date ->
+                        anosFumando = date
+                    }
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+
+            }
+            item {
+                OutlinedTextField(
+                    value = cigarrillos,
+                    onValueChange = {
+                        if (it.all { it.isDigit() }) {
+                            cigarrillos = it
+                        }
+                    },
+                    label = { Text("Cuantos Cigarrillos fumas diario?") },
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.SmokingRooms,
+                            contentDescription = "Peso",
+                            tint = secundario
+                        )
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    supportingText = {
+                        if (MessageCigarillos.isNotEmpty()) {
+                            Text(MessageCigarillos, color = Color.Red)
+                        }
+                    }
+                )
+
+            }
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                GenderDropdownMenu(
+                    options = generos,
+                    onOptionSelected = {
+                        genero = it
+                    }
+                )
+                if (MessageGenero.isNotEmpty()) {
+                    Text("Elija un genero", color = Color.Red, fontSize = 11.sp)
+                }
+                if (error.isNotEmpty()) {
+
+                    Text(
+                        error,
+                        color = Color.Red,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    )
+                }
+
+            }
+            item {
+
+                Spacer(modifier = Modifier.height(20.dp))
+                Button(
+                    onClick = {
+                        var BooleanName: Boolean = ValidationName(textoNombre).first
+                        MessageName = ValidationName(textoNombre).second
+                        var BooleanPeso: Boolean = ValidationPeso(peso).first
+                        MessagePeso = ValidationPeso(peso).second
+                        var BooleanCigarrillos: Boolean =
+                            validarCigarrillosPorDia(cigarrillos).first
+                        MessageCigarillos = validarCigarrillosPorDia(cigarrillos).second
+                        var BooleanFechas: Boolean = validarEdadYFumar(fechan, anosFumando).first
+                        MessageNac = validarEdadYFumar(fechan, anosFumando).second
+                        var BooleanGenero: Boolean = validarGenero(genero).first
+                        MessageGenero = validarGenero(genero).second
+
+                        if (BooleanName && BooleanPeso && BooleanCigarrillos && BooleanFechas && BooleanGenero) {
+                            guardarDatos(
+                                nombre = textoNombre,
+                                peso = peso,
+                                fechaNacimiento = fechan,
+                                fechaInicioFumar = anosFumando,
+                                cigarrillosPorDia = cigarrillos,
+                                genero = genero,
+                                onSuccess = {
+                                    navController.navigate("HomeScreen") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                },
+                                onError = { error = it })
+                        }
+
+
+                    },
+                    colors = ButtonDefaults.buttonColors
+                        (containerColor = secundario),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                )
+                        .height(50.dp)
+                ) {
+                    Text(
+                        text = "Continuar",
+                        fontSize = 16.sp
+                    )
+                }
+
+
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-            Button(
-                onClick = {
-                    var BooleanName: Boolean = ValidationName(textoNombre).first
-                    MessageName = ValidationName(textoNombre).second
-                    var BooleanPeso: Boolean = ValidationPeso(peso).first
-                    MessagePeso = ValidationPeso(peso).second
-                    var BooleanCigarrillos: Boolean = validarCigarrillosPorDia(cigarrillos).first
-                    MessageCigarillos = validarCigarrillosPorDia(cigarrillos).second
-                    var BooleanFechas: Boolean = validarEdadYFumar(fechan, anosFumando).first
-                    MessageNac = validarEdadYFumar(fechan, anosFumando).second
-                    var BooleanGenero: Boolean = validarGenero(genero).first
-                    MessageGenero = validarGenero(genero).second
-
-                    if (BooleanName && BooleanPeso && BooleanCigarrillos && BooleanFechas && BooleanGenero) {
-                        guardarDatos(
-                            nombre = textoNombre,
-                            peso = peso,
-                            fechaNacimiento = fechan,
-                            fechaInicioFumar = anosFumando,
-                            cigarrillosPorDia = cigarrillos,
-                            genero = genero,
-                            onSuccess = {
-                                navController.navigate("HomeScreen") {
-                                    popUpTo(0) { inclusive = true }
-                                }
-                            },
-                            onError = { error = it })
-                    }
-
-
-                },
-                colors = ButtonDefaults.buttonColors
-                    (containerColor = secundario),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Text(
-                    text = "Continuar",
-                    fontSize = 16.sp
-                )
-            }
-
-
         }
     }
 
 }
+
 
 @Composable
 fun GenderDropdownMenu(

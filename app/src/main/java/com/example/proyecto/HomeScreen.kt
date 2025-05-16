@@ -29,10 +29,19 @@ fun HomeScreen(navController: NavController) {
     val auth = FirebaseAuth.getInstance()
     val user = auth.currentUser
     val db = Firebase.firestore
+    var lista by remember { mutableStateOf<List<RegistroCigarrillos>>(emptyList()) }
+
     var nombre by remember { mutableStateOf("") }
     db.collection("usuarios").document(user!!.uid).get().addOnSuccessListener {
-        nombre = it.getString("nombre").toString()}
+        nombre = it.getString("nombre").toString()
+    }
 
+    LaunchedEffect(Unit) {
+        obtenerTodosLosRegistrosCigarrillos(
+            onResultado = { datos -> lista = datos },
+            onError = { }
+        )
+    }
 
 
     val seleccion = Color(0xFFB0CFEA)
@@ -127,11 +136,19 @@ fun HomeScreen(navController: NavController) {
             ) { page ->
                 // Cargar las pantallas correspondientes según la página
                 when (page) {
-                    0 -> Estadisticas()
+                    0 -> Estadisticas(lista, click = {
+                        obtenerTodosLosRegistrosCigarrillos(
+                            onResultado = { datos -> lista = datos },
+                            onError = { }
+                        )
+                    })
+
                     1 -> Calendario()
                     2 -> IA()
-                    3 -> Perfil(cerrar = { auth.signOut()
-                    navController.navigate("LoginScreen") {popUpTo(0) { inclusive = true }}})
+                    3 -> Perfil(cerrar = {
+                        auth.signOut()
+                        navController.navigate("LoginScreen") { popUpTo(0) { inclusive = true } }
+                    })
                 }
             }
         }

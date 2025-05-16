@@ -2,6 +2,7 @@ package com.example.proyecto
 
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,30 +17,51 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 
 import java.util.*
-
+import androidx.core.graphics.toColorInt
+import coil.compose.rememberAsyncImagePainter
+import com.github.mikephil.charting.components.Legend
+import kotlinx.coroutines.coroutineScope
 
 
 @Composable
-fun Estadisticas() {
+fun Estadisticas(lista: List<RegistroCigarrillos>, click: () -> Unit = {}) {
     val primaryColor = Color(0xFF0D293F) // Azul oscuro
     val secondaryColor = Color(0xFF2E4E69) // Azul claro
     var cigarrillos by remember { mutableStateOf(0) }
+    obtenerCigarrillosHoy (onResultado = { cigarrillos =it},onError = {})
     var MesssageCigarrillos by remember { mutableStateOf("") }
     var consejo = obtenerConsejoAzar()
+
+
+
+
+
+
+
     Scaffold { innnerPading ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innnerPading),
+                .padding(innnerPading).padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -49,11 +71,19 @@ fun Estadisticas() {
                     color = primaryColor,
                     fontSize = 35.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
+                    modifier = Modifier.padding(horizontal = 16.dp).padding(top = 5.dp, bottom = 8.dp))
             }
-            item { }
             item {
+                if (lista.isEmpty()) {
+                    Text("No hay datos disponibles.")
+                } else {
+                    GraficoBarrasCigarrillos(lista)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -83,7 +113,7 @@ fun Estadisticas() {
 
                     // Campo de texto numérico
                     OutlinedTextField(
-                        value = "Cigarrillos: ${cigarrillos}",
+                        value = "Cigarrillos: $cigarrillos",
                         onValueChange = {
                             if (it.all { it.isDigit() }) {
                                 cigarrillos = it.toInt()
@@ -137,9 +167,12 @@ fun Estadisticas() {
                         if (cigarrillos.toInt() >= 0) {
                             cigarrillosDia(cigarrillos)
                             MesssageCigarrillos = "Actualizado correctamente"
-                            obtenerDatosCigarrillosPorDia(
+                            click()
 
-                            )
+
+
+
+
 
 
                         } else {
@@ -162,6 +195,9 @@ fun Estadisticas() {
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
+            item { Spacer(modifier = Modifier.height(16.dp))
+                Image(painter=painterResource(R.drawable.pulmoni),modifier=Modifier.size(200.dp), contentDescription = "gif")
+            }
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
@@ -178,6 +214,50 @@ fun Estadisticas() {
 
 }
 
+@Composable
+fun GraficoBarrasCigarrillos(lista: List<RegistroCigarrillos>) {
+    val context = LocalContext.current
+    val barChart = remember { BarChart(context) }
+
+    LaunchedEffect(lista) {
+        barChart.legend.apply {
+            horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER // Centrar la leyenda
+            textSize = 14f
+            textColor = android.graphics.Color.BLACK
+        }
+        val entries = lista.mapIndexed { index, registro ->
+            BarEntry(index.toFloat(), registro.cantidad.toFloat()) // Eje Y = cantidad de cigarrillos
+        }
+
+        val fechas = lista.map { it.fecha } // Extraer fechas
+
+        val dataSet = BarDataSet(entries, "Cigarrillos por día").apply {
+            color = 0xFFB0CFEA.toInt()
+            valueTextSize = 12f
+
+        }
+
+        val barData = BarData(dataSet)
+        barChart.data = barData
+        barChart.description.text = ""
+
+        // Configurar el eje X con las fechas
+        val xAxis = barChart.xAxis
+        xAxis.valueFormatter = IndexAxisValueFormatter(fechas) // Mostrar fechas en el eje X
+        xAxis.setDrawGridLines(false)
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.granularity = 1f // Asegurar que cada valor sea único
+
+        // Configurar el eje Y
+        val yAxis = barChart.axisLeft
+        yAxis.axisMinimum = 0f // Asegurar que empiece en 0
+        barChart.axisRight.isEnabled = false // Ocultar eje Y derecho
+
+        barChart.invalidate()
+    }
+
+    AndroidView(factory = { barChart }, modifier = Modifier.fillMaxWidth().height(300.dp))
+}
 
 
 
