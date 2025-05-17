@@ -30,7 +30,7 @@ fun HomeScreen(navController: NavController) {
     val user = auth.currentUser
     val db = Firebase.firestore
     var lista by remember { mutableStateOf<List<RegistroCigarrillos>>(emptyList()) }
-
+    var tiempoCigarrillos by remember { mutableStateOf(emptyMap<String, Long>()) }
     var nombre by remember { mutableStateOf("") }
     db.collection("usuarios").document(user!!.uid).get().addOnSuccessListener {
         nombre = it.getString("nombre").toString()
@@ -42,6 +42,12 @@ fun HomeScreen(navController: NavController) {
             onError = { }
         )
     }
+    LaunchedEffect(Unit) {
+        obtenerTiempoDesdeUltimoCigarrillo(
+            onResultado = { tiempoCigarrillos = it },
+            onError = {  }
+        )}
+
 
 
     val seleccion = Color(0xFFB0CFEA)
@@ -143,7 +149,7 @@ fun HomeScreen(navController: NavController) {
                         )
                     })
 
-                    1 -> Calendario()
+                    1 -> Calendario(tiempoCigarrillos)
                     2 -> IA()
                     3 -> Perfil(cerrar = {
                         auth.signOut()

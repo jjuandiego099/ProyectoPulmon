@@ -30,11 +30,11 @@ import kotlinx.coroutines.isActive
 
 
 @Composable
-fun Calendario() {
+fun Calendario( tiempo: Map<String, Long>) {
     val titulo = Color(0xFF0D293F)
     val secundario = Color(0xFF2E4E69)
 
-    var tiempoCigarrillos by remember { mutableStateOf(emptyMap<String, Long>()) }
+    var tiempoCigarrillos by remember { mutableStateOf(tiempo) }
 
     LaunchedEffect(Unit) {
         obtenerTiempoDesdeUltimoCigarrillo(
