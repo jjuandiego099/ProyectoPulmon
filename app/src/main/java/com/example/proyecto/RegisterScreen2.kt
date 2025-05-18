@@ -319,7 +319,7 @@ fun RegisterScreen2(navController: NavController) {
 
 }
 
-
+//eleccion de si o no del genero
 @Composable
 fun GenderDropdownMenu(
 
@@ -342,16 +342,16 @@ fun GenderDropdownMenu(
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false },
+            onDismissRequest = { expanded = false }, //click fuera del menu se cierra
             modifier = Modifier.fillMaxWidth()
         ) {
-            options.forEach { option ->
+            options.forEach { option ->     //para cada opcion
                 DropdownMenuItem(
                     text = { Text(option) },
                     onClick = {
-                        selectedOption = option
-                        expanded = false
-                        onOptionSelected(option)
+                        selectedOption = option     //se asigna el valor seleccionado
+                        expanded = false            //se cierra el meni
+                        onOptionSelected(option)    //se llama a la funcion onOptionSelected para sacar el valor seleccionado
                     },
 
                     )
@@ -359,7 +359,7 @@ fun GenderDropdownMenu(
         }
     }
 }
-
+//datepciker para las fechas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarDatePicker(
@@ -381,7 +381,7 @@ fun CalendarDatePicker(
         Text(text = label)
     }
 
-    // El diálogo Compose Material3 con selector de año/mes
+    // El diálogo  con selector de año/mes
     if (openDialog) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = selectedDate
@@ -389,25 +389,25 @@ fun CalendarDatePicker(
                 .toInstant()
                 .toEpochMilli()
         )
-
+        //componente de calendario
         DatePickerDialog(
-            onDismissRequest = { openDialog = false },
+            onDismissRequest = { openDialog = false },  //calendario cerrado
             confirmButton = {
                 TextButton(onClick = {
                     // Cuando confirmen, actualizamos selectedDate
                     datePickerState.selectedDateMillis?.let { millis ->
                         selectedDate = Instant.ofEpochMilli(millis)
                             .atZone(ZoneId.systemDefault())
-                            .toLocalDate()
+                            .toLocalDate() //la convierte a un objeto de LocalDate desde milisegundos
                         onDateSelected(selectedDate)
-                    }
+                    }   //se llama a la funcion onDateSelected para sacar la fecha seleccionada
                     openDialog = false
                 }) {
                     Text("OK")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { openDialog = false }) {
+                TextButton(onClick = { openDialog = false }) {  //cierra el calendario
                     Text("Cancelar")
                 }
             }
@@ -421,7 +421,7 @@ fun CalendarDatePicker(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                DatePicker(state = datePickerState)
+                DatePicker(state = datePickerState)//guarda la fecha sleccionada en el datePicker
             }
         }
     }

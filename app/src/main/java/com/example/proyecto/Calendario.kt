@@ -34,26 +34,47 @@ fun Calendario( tiempo: Map<String, Long>) {
     val titulo = Color(0xFF0D293F)
     val secundario = Color(0xFF2E4E69)
 
-    var tiempoCigarrillos by remember { mutableStateOf(tiempo) }
+    var tiempoCigarrillos by remember { mutableStateOf(tiempo) }// se le asigna el valor inicial del timepo transcurrido desde el ultimo momento
 
-    LaunchedEffect(Unit) {
-        obtenerTiempoDesdeUltimoCigarrillo(
-            onResultado = { tiempoCigarrillos = it },
-            onError = {  }
-        )
+    LaunchedEffect(Unit) {//es asincrono
+
 
         while (isActive) { // Evita bloqueo infinito de la UI
-            delay(1000L)
-
-            tiempoCigarrillos = tiempoCigarrillos.toMutableMap().apply {
+            delay(1000L)//se ejecuta cada 1 segundo
+            //crea una copia del mapa de tiempoCigarrillos y actualiza los valores
+            tiempoCigarrillos = tiempoCigarrillos.toMutableMap().apply {    //se configura los valores de minutos horas y segundos
                 val segundos = this["segundos"] ?: 0
                 val minutos = this["minutos"] ?: 0
+                val horas = this["horas"] ?: 0
+                val días = this["días"] ?: 0
+                val meses = this["meses"] ?: 0
+                val años = this["años"] ?: 0
 
                 this["segundos"] = segundos + 1
-
-                if (segundos + 1 >= 60) {
+                //se verifica que cuando un valor llegue a 60 los demas se reinicien
+                if (this["segundos"]!! >= 60) {
                     this["minutos"] = minutos + 1
                     this["segundos"] = 0
+                }
+
+                if (this["minutos"]!! >= 60) {
+                    this["horas"] = horas + 1
+                    this["minutos"] = 0
+                }
+
+                if (this["horas"]!! >= 24) {
+                    this["días"] = días + 1
+                    this["horas"] = 0
+                }
+
+                if (this["días"]!! >= 30) { // Suponiendo meses de 30 días
+                    this["meses"] = meses + 1
+                    this["días"] = 0
+                }
+
+                if (this["meses"]!! >= 12) {
+                    this["años"] = años + 1
+                    this["meses"] = 0
                 }
             }
         }
@@ -107,6 +128,9 @@ fun Calendario( tiempo: Map<String, Long>) {
 
                 // Números de tiempo con formato uniforme
                 Row(verticalAlignment = Alignment.Bottom) {
+                    //se transforma el valor de Long a string
+                    //se verifica que no sea nuelo y si no se le asigna 0
+                    // se verifica si es 1 el valor para que el texto sea plural
                     TiempoTexto("${tiempoCigarrillos["años"] ?: 0L}", if ((tiempoCigarrillos["años"] ?: 0L) == 1L) " AÑO" else " AÑOS", titulo, secundario)
                     TiempoTexto("${tiempoCigarrillos["meses"] ?: 0L}", if ((tiempoCigarrillos["meses"] ?: 0L) == 1L) " MES" else " MESES", titulo, secundario)
                     TiempoTexto("${tiempoCigarrillos["días"] ?: 0L}", if ((tiempoCigarrillos["días"] ?: 0L) == 1L) " DÍA" else " DÍAS", titulo, secundario)

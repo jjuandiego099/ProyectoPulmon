@@ -38,7 +38,7 @@ interface PredictionApi {
     //manda la solicitud a la api
     @POST("/app")
     // el suspend vuelve la funcion asincrona
-    suspend fun predict(@Body data: PatientData): Response<PredictionResponse>
+    suspend fun predict(@Body data: PatientData): Response<PredictionResponse>// el response es la respuesta http
     //body pasa los datos  como el cuerpo de la peticion
 }
 
@@ -57,9 +57,9 @@ object RetrofitInstance {
 suspend fun ConsumirApi(data: PatientData): String {
     Log.d("API_ENVIO", "Enviando datos: $data")
     return try {
-        val response = RetrofitInstance.api.predict(data)
+        val response = RetrofitInstance.api.predict(data)// se hace la peticion a la instancia
         if (response.isSuccessful) {
-            response.body()?.result ?: "Sin respuesta del servidor"
+            response.body()?.result ?: "Sin respuesta del servidor"// aqui se obtiene la respuesta en string
         } else {
             "Error ${response.code()}: ${response.message()}"
         }

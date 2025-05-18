@@ -1,5 +1,6 @@
 package com.example.proyecto
 
+import android.util.Log
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 @Composable
 fun IA() {
@@ -89,15 +91,15 @@ fun IA() {
         item {
             SliderWithLabel("Saturacion de Oxigeno", oxygen, 89f, 99f, primaryColor) { oxygen = it }
         }
-
-        itemsIndexed(yesNoFields) { index, field ->
-            val state = toggleStates[field]!!
+        //itera la lista de preguntas
+        itemsIndexed(yesNoFields) { index, field -> //devuelve el index y el valor
+            val state = toggleStates[field]!!   //asigna el valor del state
             YesNoField(
                 label = field.replace('_', ' '),
                 state = state,
                 primaryColor = primaryColor,
                 secondaryColor = secondaryColor,
-                yesText = if (field == "Género") "Masculino" else "Sí",
+                yesText = if (field == "Género") "Masculino" else "Sí", //es una caso especial para asiganr valor a genero
                 noText = if (field == "Género") "Femenino" else "No"
             )
         }
@@ -138,6 +140,8 @@ fun IA() {
                     )
                     CoroutineScope(Dispatchers.IO).launch {
                          resultadoPrediccion = ConsumirApi(patientData)
+
+
 
 
                     }
@@ -181,8 +185,8 @@ fun YesNoField(
         )
         Row {
             RadioButton(
-                selected = state.value == 1,
-                onClick = { state.value = 1 },
+                selected = state.value == 1, //condicional para saber si esta seleccionado
+                onClick = { state.value = 1 },  //asigna el valor 1 si esta seleccionado
                 colors = RadioButtonDefaults.colors(
                     selectedColor = primaryColor,
                     unselectedColor = secondaryColor
@@ -191,8 +195,8 @@ fun YesNoField(
             Text(yesText, color = secondaryColor)
             Spacer(modifier = Modifier.width(8.dp))
             RadioButton(
-                selected = state.value == 0,
-                onClick = { state.value = 0 },
+                selected = state.value == 0,    //condicional para saber si esta seleccionado
+                onClick = { state.value = 0 },  //asigna el valor 0 si esta seleccionado
                 colors = RadioButtonDefaults.colors(
                     selectedColor = primaryColor,
                     unselectedColor = secondaryColor

@@ -29,12 +29,13 @@ fun HomeScreen(navController: NavController) {
     val auth = FirebaseAuth.getInstance()
     val user = auth.currentUser
     val db = Firebase.firestore
-    var lista by remember { mutableStateOf<List<RegistroCigarrillos>>(emptyList()) }
-    var tiempoCigarrillos by remember { mutableStateOf(emptyMap<String, Long>()) }
+    var lista by remember { mutableStateOf<List<RegistroCigarrillos>>(emptyList()) }// lista de objetos registro cigarrillos
+    var tiempoCigarrillos by remember { mutableStateOf(emptyMap<String, Long>()) } //mapa de tiempo del ultimo cigarrillo
     var nombre by remember { mutableStateOf("") }
     db.collection("usuarios").document(user!!.uid).get().addOnSuccessListener {
-        nombre = it.getString("nombre").toString()
+        nombre = it.getString("nombre").toString()  //muestra el nombre del usuario en el topbar
     }
+    //se cragan ambas funciones aqui para que esten precargadas desde que se abre el homeScreen
 
     LaunchedEffect(Unit) {
         obtenerTodosLosRegistrosCigarrillos(
@@ -61,17 +62,18 @@ fun HomeScreen(navController: NavController) {
     )
 
     val selectedItem = remember { mutableStateOf(0) }
-    val pagerState = rememberPagerState(initialPage = 0)
-    val coroutineScope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(initialPage = 0)//el estado del pager
+    val coroutineScope = rememberCoroutineScope() //se usa para lanzar animaciones al cambiar la página
 
     // Cambiar el estado de selectedItem cuando cambia el pagerState
     LaunchedEffect(pagerState.currentPage) {
-        selectedItem.value = pagerState.currentPage
+        selectedItem.value = pagerState.currentPage //actualiza el value del bottombar con el del pager
     }
 
     Scaffold(
         topBar = {
             val scrollBehavior =
+                //aparece y desaparece el topbar con el scroll
                 TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -85,7 +87,7 @@ fun HomeScreen(navController: NavController) {
                     IconButton(onClick = {
                         selectedItem.value = 3
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(3)
+                            pagerState.animateScrollToPage(3)//viaja al pager 3 el del perfil
                         }
 
                     }) {
@@ -110,13 +112,14 @@ fun HomeScreen(navController: NavController) {
         },
         bottomBar = {
             NavigationBar {
-                items.forEachIndexed { index, (label, icono) ->
+                items.forEachIndexed { index, (label, icono) -> //recorre cada parte de la lista item
                     NavigationBarItem(
-                        selected = selectedItem.value == index,
+                        selected = selectedItem.value == index, //if que comprueba si el item seleccionado es el mismo que el index
                         onClick = {
-                            selectedItem.value = index
+                            selectedItem.value = index  //actualiza el value del bottombar
+                            //se inicia una corutina para animar el pager
                             coroutineScope.launch {
-                                pagerState.animateScrollToPage(index)
+                                pagerState.animateScrollToPage(index) // se desplace animadamente a la página con el índice index.
                             }
                         },
                         icon = { Icon(icono, contentDescription = label) },
@@ -137,8 +140,8 @@ fun HomeScreen(navController: NavController) {
                 .fillMaxSize()
         ) {
             HorizontalPager(
-                count = items.size,
-                state = pagerState
+                count = items.size, //se define el numero de pantallas
+                state = pagerState  //El estado controla cuál página está activa
             ) { page ->
                 // Cargar las pantallas correspondientes según la página
                 when (page) {
@@ -154,6 +157,8 @@ fun HomeScreen(navController: NavController) {
                     3 -> Perfil(cerrar = {
                         auth.signOut()
                         navController.navigate("LoginScreen") { popUpTo(0) { inclusive = true } }
+                        //el poopupto 0 elimina el historial de pantallas incluida la actual
+                    //se regresa a la pantalla de login y se cierra sesion
                     })
                 }
             }

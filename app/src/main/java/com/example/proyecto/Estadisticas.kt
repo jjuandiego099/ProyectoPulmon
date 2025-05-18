@@ -1,7 +1,7 @@
 package com.example.proyecto
 
 
-import android.util.Log
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
-import androidx.compose.ui.graphics.toArgb
+
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 
@@ -35,11 +35,9 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 
-import java.util.*
-import androidx.core.graphics.toColorInt
-import coil.compose.rememberAsyncImagePainter
+
 import com.github.mikephil.charting.components.Legend
-import kotlinx.coroutines.coroutineScope
+
 
 
 @Composable
@@ -50,6 +48,7 @@ fun Estadisticas(lista: List<RegistroCigarrillos>, click: () -> Unit = {}) {
     obtenerCigarrillosHoy (onResultado = { cigarrillos =it},onError = {})
     var MesssageCigarrillos by remember { mutableStateOf("") }
     var consejo = obtenerConsejoAzar()
+
 
 
 
@@ -218,25 +217,30 @@ fun Estadisticas(lista: List<RegistroCigarrillos>, click: () -> Unit = {}) {
 fun GraficoBarrasCigarrillos(lista: List<RegistroCigarrillos>) {
     val context = LocalContext.current
     val barChart = remember { BarChart(context) }
+    //se crea la instancia barchart con el contextto actual
 
+    //se ejecuta cada vez que lista cambia
     LaunchedEffect(lista) {
+        //se configura el grafico
         barChart.legend.apply {
             horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER // Centrar la leyenda
             textSize = 14f
             textColor = android.graphics.Color.BLACK
         }
+
         val entries = lista.mapIndexed { index, registro ->
             BarEntry(index.toFloat(), registro.cantidad.toFloat()) // Eje Y = cantidad de cigarrillos
+            //El eje X es el índice (posición) y el eje Y es la cantidad.
         }
 
         val fechas = lista.map { it.fecha } // Extraer fechas
-
+        //Crea un conjunto de datos para el gráfico con las barras y las configura (color, texto)
         val dataSet = BarDataSet(entries, "Cigarrillos por día").apply {
             color = 0xFFB0CFEA.toInt()
             valueTextSize = 12f
-
         }
 
+        //Asigna los datos al gráfico y elimina el texto de descripción.
         val barData = BarData(dataSet)
         barChart.data = barData
         barChart.description.text = ""
@@ -245,7 +249,7 @@ fun GraficoBarrasCigarrillos(lista: List<RegistroCigarrillos>) {
         val xAxis = barChart.xAxis
         xAxis.valueFormatter = IndexAxisValueFormatter(fechas) // Mostrar fechas en el eje X
         xAxis.setDrawGridLines(false)
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.position = XAxis.XAxisPosition.BOTTOM //La posición del eje X es en la parte inferior.
         xAxis.granularity = 1f // Asegurar que cada valor sea único
 
         // Configurar el eje Y

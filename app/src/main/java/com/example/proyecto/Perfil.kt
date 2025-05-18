@@ -51,6 +51,7 @@ fun Perfil(cerrar: () -> Unit = {}) {
 
     val correo = user?.email ?: "No existe usuario"
 
+    //se obtiene los datos del usuario
     db.collection("usuarios").document(user!!.uid).get().addOnSuccessListener {
         nombre = it.getString("nombre").toString()
         fechaNacimiento = it.getString("fechaNacimiento").toString()
@@ -103,6 +104,7 @@ fun Perfil(cerrar: () -> Unit = {}) {
         }
         item {
             calcularCigarrillosPromedio(onResultado = {cigarrillosPorDia=it.toLong()}, onError = {})
+            //se muestra la innformacion con los valores obtenidos
 
             Campo("Correo", correo)
             Spacer(modifier = Modifier.height(20.dp))
@@ -131,11 +133,6 @@ fun Perfil(cerrar: () -> Unit = {}) {
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun PerfilPreview() {
-    Perfil()
-}
 
 @Composable
 fun Campo(label: String, valor: String) {
@@ -157,11 +154,12 @@ fun Campo(label: String, valor: String) {
 
 fun calcularEdad(fechaNacimiento: String?): Int? {
     if (fechaNacimiento.isNullOrEmpty()) return null
+    //si fecha de nacimiento existe y no es nula o vacia
     return try {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val fechaNacimientoDate = LocalDate.parse(fechaNacimiento, formatter)
         val hoy = LocalDate.now()
-        Period.between(fechaNacimientoDate, hoy).years
+        Period.between(fechaNacimientoDate, hoy).years //se devuelve la diferencia en años
     } catch (e: Exception) {
         null
     }
