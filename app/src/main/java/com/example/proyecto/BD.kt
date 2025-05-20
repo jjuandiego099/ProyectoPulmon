@@ -72,7 +72,7 @@ fun cigarrillosDia(cigarrillos: Int) {  //se usa para guardar en firebase los ci
 
     docRef.set(datos, SetOptions.merge()) // Actualiza si existe, crea si no, guarda la fecha y cigarrillos
 }
-fun cigarrillosFireStore(onResult: (Int?) -> Unit): Unit {
+fun cigarrillosFireStore(onResult: (Int?) -> Unit): Unit {    //obtiene el valor almacenado de cigarrillos el dia de hoy para que la verificacion sea mas rapida
     val user = FirebaseAuth.getInstance().currentUser
     val uid = user?.uid ?: return onResult(null)  // Si no hay usuario autenticado, salimos
 
