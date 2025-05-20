@@ -38,6 +38,11 @@ fun Calendario( tiempo: Map<String, Long>) {
 
     LaunchedEffect(Unit) {//es asincrono
 
+            obtenerTiempoDesdeUltimoCigarrillo(
+                onResultado = { tiempoCigarrillos = it },
+                onError = {  }
+            )
+
 
         while (isActive) { // Evita bloqueo infinito de la UI
             delay(1000L)//se ejecuta cada 1 segundo

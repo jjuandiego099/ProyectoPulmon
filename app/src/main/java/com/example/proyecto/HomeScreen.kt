@@ -46,9 +46,9 @@ fun HomeScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         obtenerTiempoDesdeUltimoCigarrillo(
             onResultado = { tiempoCigarrillos = it },
-            onError = {  }
-        )}
-
+            onError = { }
+        )
+    }
 
 
     val seleccion = Color(0xFFB0CFEA)
@@ -63,11 +63,13 @@ fun HomeScreen(navController: NavController) {
 
     val selectedItem = remember { mutableStateOf(0) }
     val pagerState = rememberPagerState(initialPage = 0)//el estado del pager
-    val coroutineScope = rememberCoroutineScope() //se usa para lanzar animaciones al cambiar la página
+    val coroutineScope =
+        rememberCoroutineScope() //se usa para lanzar animaciones al cambiar la página
 
     // Cambiar el estado de selectedItem cuando cambia el pagerState
     LaunchedEffect(pagerState.currentPage) {
-        selectedItem.value = pagerState.currentPage //actualiza el value del bottombar con el del pager
+        selectedItem.value =
+            pagerState.currentPage //actualiza el value del bottombar con el del pager
     }
 
     Scaffold(
@@ -150,19 +152,21 @@ fun HomeScreen(navController: NavController) {
                             onResultado = { datos -> lista = datos },
                             onError = { }
                         )
-                    })
 
-                    1 -> Calendario(tiempoCigarrillos)
-                    2 -> IA()
-                    3 -> Perfil(cerrar = {
+
+                        })
+
+                        1 -> Calendario(tiempoCigarrillos)
+                        2 -> IA()
+                        3 -> Perfil(cerrar = {
                         auth.signOut()
                         navController.navigate("LoginScreen") { popUpTo(0) { inclusive = true } }
                         //el poopupto 0 elimina el historial de pantallas incluida la actual
-                    //se regresa a la pantalla de login y se cierra sesion
+                        //se regresa a la pantalla de login y se cierra sesion
                     })
+                    }
                 }
             }
         }
     }
-}
 

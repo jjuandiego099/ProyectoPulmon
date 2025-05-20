@@ -1,7 +1,6 @@
 package com.example.proyecto
 
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -39,28 +38,24 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.components.Legend
 
 
-
 @Composable
 fun Estadisticas(lista: List<RegistroCigarrillos>, click: () -> Unit = {}) {
     val primaryColor = Color(0xFF0D293F) // Azul oscuro
     val secondaryColor = Color(0xFF2E4E69) // Azul claro
     var cigarrillos by remember { mutableStateOf(0) }
-    obtenerCigarrillosHoy (onResultado = { cigarrillos =it},onError = {})
+    var cigarrillosFireStores by remember { mutableStateOf(0) }
+    obtenerCigarrillosHoy(onResultado = { cigarrillos = it }, onError = {})
     var MesssageCigarrillos by remember { mutableStateOf("") }
     var consejo = obtenerConsejoAzar()
-
-
-
-
-
-
+    cigarrillosFireStore{cigarrillosFireStores=it?:0}// asigna el valor de cigarrillos guardado en la firestore
 
 
     Scaffold { innnerPading ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innnerPading).padding(horizontal = 16.dp),
+                .padding(innnerPading)
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -70,7 +65,10 @@ fun Estadisticas(lista: List<RegistroCigarrillos>, click: () -> Unit = {}) {
                     color = primaryColor,
                     fontSize = 35.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 16.dp).padding(top = 5.dp, bottom = 8.dp))
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 5.dp, bottom = 8.dp)
+                )
             }
             item {
                 if (lista.isEmpty()) {
@@ -132,7 +130,8 @@ fun Estadisticas(lista: List<RegistroCigarrillos>, click: () -> Unit = {}) {
                                 )
                             }
                         },
-                        label = { Text("Cigarrillos el dia de Hoy") }
+                        label = { Text("Cigarrillos el dia de Hoy") },
+                        readOnly = true
                     )
 
                     Spacer(modifier = Modifier.width(8.dp)) // Espacio entre campo y botón
@@ -163,19 +162,20 @@ fun Estadisticas(lista: List<RegistroCigarrillos>, click: () -> Unit = {}) {
             item {
                 Button(
                     onClick = {
-                        if (cigarrillos.toInt() >= 0) {
-                            cigarrillosDia(cigarrillos)
-                            MesssageCigarrillos = "Actualizado correctamente"
-                            click()
+                        if (cigarrillos >= 0) {
+//
+                            if(cigarrillosFireStores!=cigarrillos){ //se verifica que el valor sea diferente
+                                cigarrillosDia(cigarrillos)
+
+                                MesssageCigarrillos = "Actualizado correctamente"
+                                click()
+                            }else{
 
 
 
+                            MesssageCigarrillos = "Sin cambios, ya estaba actualizado"}
 
 
-
-
-                        } else {
-                            MesssageCigarrillos = "Cigarrillos no pueden ser negativos"
                         }
                     }, colors = ButtonDefaults.buttonColors(
                         containerColor = secondaryColor,
@@ -194,8 +194,13 @@ fun Estadisticas(lista: List<RegistroCigarrillos>, click: () -> Unit = {}) {
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
-            item { Spacer(modifier = Modifier.height(16.dp))
-                Image(painter=painterResource(R.drawable.pulmoni),modifier=Modifier.size(200.dp), contentDescription = "gif")
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Image(
+                    painter = painterResource(R.drawable.pulmoni),
+                    modifier = Modifier.size(200.dp),
+                    contentDescription = "gif"
+                )
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -229,7 +234,10 @@ fun GraficoBarrasCigarrillos(lista: List<RegistroCigarrillos>) {
         }
 
         val entries = lista.mapIndexed { index, registro ->
-            BarEntry(index.toFloat(), registro.cantidad.toFloat()) // Eje Y = cantidad de cigarrillos
+            BarEntry(
+                index.toFloat(),
+                registro.cantidad.toFloat()
+            ) // Eje Y = cantidad de cigarrillos
             //El eje X es el índice (posición) y el eje Y es la cantidad.
         }
 
@@ -260,8 +268,12 @@ fun GraficoBarrasCigarrillos(lista: List<RegistroCigarrillos>) {
         barChart.invalidate()
     }
 
-    AndroidView(factory = { barChart }, modifier = Modifier.fillMaxWidth().height(300.dp))
+    AndroidView(factory = { barChart }, modifier = Modifier
+        .fillMaxWidth()
+        .height(300.dp))
 }
+
+
 
 
 

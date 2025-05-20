@@ -13,6 +13,8 @@ import java.util.Locale
 import com.google.firebase.firestore.SetOptions
 import java.util.Calendar
 import java.util.TimeZone
+import kotlin.text.format
+import kotlin.text.get
 
 fun guardarDatos(
     nombre: String,
@@ -70,9 +72,37 @@ fun cigarrillosDia(cigarrillos: Int) {  //se usa para guardar en firebase los ci
 
     docRef.set(datos, SetOptions.merge()) // Actualiza si existe, crea si no, guarda la fecha y cigarrillos
 }
+fun cigarrillosFireStore(onResult: (Int?) -> Unit): Unit {
+    val user = FirebaseAuth.getInstance().currentUser
+    val uid = user?.uid ?: return onResult(null)  // Si no hay usuario autenticado, salimos
+
+    val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) // Formato de fecha (solo día)
+    val db = FirebaseFirestore.getInstance()
+
+    // Referencia al documento del día actual del usuario actual
+    val docRef = db.collection("usuarios")
+        .document(uid)  // Usuario actual
+        .collection("cigarrillos")  // Subcolección de cigarrillos
+        .document(fechaHoy)  // Documento del día actual
+
+    // Obtener el documento
+    docRef.get()
+        .addOnSuccessListener { document ->
+            if (document.exists()) {
+                val cantidad = document.getLong("cigarrillos")?.toInt()
+                onResult(cantidad)  // Retornar la cantidad si existe
+            } else {
+                onResult(null)  // No hay registro para hoy
+            }
+        }
+        .addOnFailureListener {
+            onResult(null)  // En caso de error al leer Firestore
+        }
+}
 
 
-fun obtenerCigarrillosHoy(  //Verifica la cantidad de cigarrillos que tiene hoy
+fun obtenerCigarrillosHoy( //Verifica la cantidad de cigarrillos que tiene hoy
+
     onResultado: (Int) -> Unit,
     onError: (Exception) -> Unit
 ) {
@@ -93,7 +123,8 @@ fun obtenerCigarrillosHoy(  //Verifica la cantidad de cigarrillos que tiene hoy
     docRef.get()
         .addOnSuccessListener { document -> //agrega un listener para verificar si existe el documento
             if (document.exists()) {
-                val cigarrillos = document.getLong("cigarrillos")?.toInt() ?: 0 //obtiene el numero de cigarrillos sino lo designa a 0
+                val cigarrillos = document.getLong("cigarrillos")?.toInt() ?: 0
+                //obtiene el numero de cigarrillos sino lo designa a 0
                 onResultado(cigarrillos)    //obtiene el numero de cigarrillos
             } else {
                 // Crear el documento con cigarrillos = 0 solo si no existe
@@ -149,10 +180,15 @@ fun obtenerTiempoDesdeUltimoCigarrillo(
         .document(uid)
         .collection("cigarrillos")
         .orderBy("fecha", Query.Direction.DESCENDING)   // Ordena los documentos por el campo "fecha" de forma descendente, es decir, de más reciente a más antiguo.
-        .limit(1)   //limita el resultado a 1 documento
         .get()
         .addOnSuccessListener { querySnapshot ->
-            val ultimaFechaStr = querySnapshot.documents.firstOrNull()?.getString("fecha") ?: ""    //devulve el 1 documento y su fecha o null si no hay nignuno
+            // Buscar el primer documento donde la cantidad de cigarrillos NO sea 0
+            val documentoValido = querySnapshot.documents.firstOrNull { doc ->
+                val cantidad = doc.getLong("cigarrillos") ?: 0
+                cantidad != 0L  //filtro para que el valor sea diferente de 0
+            }
+
+            val ultimaFechaStr = documentoValido?.getString("fecha") ?: ""
 
             if (ultimaFechaStr.isNotEmpty()) {
                 try {
@@ -178,6 +214,7 @@ fun obtenerTiempoDesdeUltimoCigarrillo(
                     onError(Exception("Error al procesar la fecha"))
                 }
             } else {
+                // No hay documento con cantidad de cigarrillos diferente de 0
                 onResultado(mapOf(
                     "años" to 0, "meses" to 0, "días" to 0,
                     "horas" to 0, "minutos" to 0, "segundos" to 0
@@ -186,6 +223,7 @@ fun obtenerTiempoDesdeUltimoCigarrillo(
         }
         .addOnFailureListener { e -> onError(e) }
 }
+
 
 fun calcularCigarrillosPromedio(
     onResultado: (Int) -> Unit, // Ahora devuelve un Int en lugar de un Double
@@ -212,6 +250,7 @@ fun calcularCigarrillosPromedio(
         }
         .addOnFailureListener { e -> onError(e) }
 }
+
 
 
 
